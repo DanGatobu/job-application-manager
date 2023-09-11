@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block link %}
+<link href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,700,900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'fonts/icomoon/icomoon/.css' %}">
+<link rel="stylesheet" href="{% static 'css/css/bootstrap.min.css' %}">
+<link rel="stylesheet" href="{% static 'css/css/style.css' %}">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+{% endblock %}
+
+{% block body %}
+<div class="content">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-5 mr-auto">
+                <h3 class="mb-3">Select Template</h3>
+                <div class="container">
+                    <p>Select a template:</p>
+                    <div class="template-list">
+                        {% for template in templates %}
+                        <label class="template-label">
+                            <input type="radio" name="selected_template" id="template_{{ template.id }}" value="{{ template.id }}">
+                            <img src="{{ template.image.url }}" class="img-thumbnail" alt="{{ template.name }}" width="307" height="240">
+                            <span>{{ template.name }}</span>
+                        </label>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="box">
+                    <h3 class="heading">Enter details</h3>
+                    <form class="mb-5" action="{% url 'cresume' %}" method="post" id="contactForm" name="contactForm">
+                        {% csrf_token %}
+                        <!-- Hidden field to store the selected template ID -->
+                        <input type="hidden" name="selected_template_id" name="id" id="selected_template_id" value="">
+                        <div class="row">
+                            <div class="col-md-12 form-group">
+                                <label for="name" class="col-form-label">Job Title</label>
+                                <input type="text" class="form-control" name="title" id="name" placeholder="Job Title">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <input type="submit" value="Create Resume" class="btn btn-block btn-primary rounded-0 py-2 px-4">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // JavaScript to update the hidden input field with the selected template ID
+    document.addEventListener("DOMContentLoaded", function () {
+        const templateInputs = document.querySelectorAll("input[type='radio'][name='selected_template']");
+        const hiddenTemplateIdInput = document.getElementById("selected_template_id");
+
+        // Add an event listener to the radio buttons to update the hidden input
+        templateInputs.forEach(function (input) {
+            input.addEventListener("change", function () {
+                if (input.checked) {
+                    hiddenTemplateIdInput.value = input.value;
+                }
+            });
+        });
+    });
+</script>
+
+{% endblock %}

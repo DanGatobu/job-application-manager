@@ -1,0 +1,119 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block link %}
+<link href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,700,900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'fonts/icomoon/icomoon/.css' %}">
+<link rel="stylesheet" href="{% static 'css/css/bootstrap.min.css' %}">
+<link rel="stylesheet" href="{% static 'css/css/style.css' %}">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+{% endblock %}
+
+{% block body %}
+<div class="content">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-5 mr-auto">
+                <h3 class="mb-3">Select documents</h3>
+                <div class="container">
+                    <p>Select templates:</p>
+                    <div class="template-list">
+                        <!-- Display CVs -->
+                        <h2>CVs</h2>
+                        <ul>
+                            {% for cv_item in cv_list %}
+                            <li>
+                                <label class="template-label">
+                                    <input type="checkbox" name="selected_cv_id" value="{{ cv_item.id }}">
+                                    {{ cv_item.name }}
+                                    <!-- Display other CV details as needed -->
+                                </label>
+                            </li>
+                            {% endfor %}
+                        </ul>
+
+                        <!-- Display Cover Letters -->
+                        <h2>Cover Letters</h2>
+                        <ul>
+                            {% for coverletter_item in coverletter_list %}
+                            <li>
+                                <label class="template-label">
+                                    <input type="checkbox" name="selected_coverletter_id" value="{{ coverletter_item.id }}">
+                                    {{ coverletter_item.name }}
+                                    <!-- Display other cover letter details as needed -->
+                                </label>
+                            </li>
+                            {% endfor %}
+                        </ul>
+
+                        <!-- Display Resumes -->
+                        <h2>Resumes</h2>
+                        <ul>
+                            {% for resume_item in resume_list %}
+                            <li>
+                                <label class="template-label">
+                                    <input type="checkbox" name="selected_resume_id" value="{{ resume_item.id }}">
+                                    {{ resume_item.name }}
+                                    <!-- Display other resume details as needed -->
+                                </label>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="box">
+                    <h3 class="heading">Enter details</h3>
+                    <form class="mb-5" action="{% url 'mergedoc' %}" method="post" id="contactForm" name="contactForm">
+                        {% csrf_token %}
+                        <!-- Hidden fields to store the selected template IDs -->
+                        <input type="hidden" name="selected_cv_id" id="selected_cv_id" value="">
+                        <input type="hidden" name="selected_coverletter_id" id="selected_coverletter_id" value="">
+                        <input type="hidden" name="selected_resume_id" id="selected_resume_id" value="">
+                        
+                        <div class="row">
+                            <div class="col-md-12 form-group">
+                                <label for="name" class="col-form-label">Merged name</label>
+                                <input type="text" class="form-control" name="title" id="name" placeholder="Merged document name">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <input type="submit" value="Merge documents" class="btn btn-block btn-primary rounded-0 py-2 px-4">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // JavaScript to update the hidden input fields with the selected template IDs
+    document.addEventListener("DOMContentLoaded", function () {
+        const cvInput = document.querySelector("input[name='selected_cv_id']");
+        const coverletterInput = document.querySelector("input[name='selected_coverletter_id']");
+        const resumeInput = document.querySelector("input[name='selected_resume_id']");
+        
+        const cvIdInput = document.getElementById("selected_cv_id");
+        const coverletterIdInput = document.getElementById("selected_coverletter_id");
+        const resumeIdInput = document.getElementById("selected_resume_id");
+
+        cvInput.addEventListener("change", function () {
+            cvIdInput.value = cvInput.checked ? cvInput.value : '';
+        });
+
+        coverletterInput.addEventListener("change", function () {
+            coverletterIdInput.value = coverletterInput.checked ? coverletterInput.value : '';
+        });
+
+        resumeInput.addEventListener("change", function () {
+            resumeIdInput.value = resumeInput.checked ? resumeInput.value : '';
+        });
+    });
+</script>
+
+{% endblock %}

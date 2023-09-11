@@ -1,0 +1,10 @@
+ECHO is on.
+# Ignore PDF files
+*.pdf
+
+# Ignore Word documents
+*.doc
+*.docx
+
+# Ignore .env files (environment files)
+.env

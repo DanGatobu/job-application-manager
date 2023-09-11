@@ -1,0 +1,44 @@
+{%extends 'base.html'%}
+{% load static %}
+{% block body %}
+<form action="{% url 'sendapp' %}" method="post">
+    <!-- 2 column grid layout with text inputs for the first and last names -->
+    {% csrf_token %}
+    <div class="row mb-4">
+      <div class="col">
+        <div class="form-outline">
+          <input type="text" id="form3Example1" name="title" class="form-control" />
+          <label class="form-label" for="form3Example1">Job title</label>
+        </div>
+      </div>
+      <div class="col">
+        <div class="form-outline">
+          <input type="text" id="form3Example2" name="company_name" class="form-control" />
+          <label class="form-label" for="form3Example2">company name </label>
+        </div>
+      </div>
+    </div>
+    <div class="row mb-4">
+        <div class="col">
+          <div class="form-outline">
+            <input type="text" id="form3Example1" name="company_email" class="form-control" />
+            <label class="form-label" for="form3Example1">Company Email</label>
+          </div>
+        </div>
+        <div class="col">
+          <div class="form-outline">
+            <input type="text" id="form3Example2" name="subject" class="form-control" />
+            <label class="form-label" for="form3Example2">Subject</label>
+          </div>
+        </div>
+      </div>
+   
+  
+    
+    
+    <!-- Submit button -->
+    <button type="submit" class="btn btn-primary btn-block mb-4">Sign up</button>
+
+  </form>
+
+{% endblock %}
