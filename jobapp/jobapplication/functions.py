@@ -14,7 +14,7 @@ from io import BytesIO
 
 
 
-def create_cover_letter(companyname):
+def create_cover_letter(companyname,title2):
     pythoncom.CoInitialize()
     company=companyname
     templateid=1
@@ -47,6 +47,10 @@ def create_cover_letter(companyname):
             cc.Range.Text = company
         if cc.Title=='date':
             cc.Range.Text=fdate
+        if cc.Title=='title2':
+            cc.Range.Text=title2
+        if cc.Title=='company2':
+            cc.Range.Text=company
         
         # Save the Word document as a PDF in the cpdf directory
     doc.SaveAs(pdf_path, FileFormat=17)  # FileFormat 17 is for PDF

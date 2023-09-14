@@ -374,18 +374,19 @@ def send_application(request):
         companyname=request.POST['company_name']
         jobtitle=request.POST['title']
         companyemail=request.POST['company_email']
+        title2=request.POST['title2']
         current_time = datetim.datetime.now().time()
 
         if current_time < datetim.time(12, 0, 0):
            message = textwrap.dedent('''\
                 Good morning,
-                My name is Dan Newton Gatobu, a BSc software engineering student in my final year at Muranga University of Science and Technology. I am writing to request an internship placement in your company. Attached, please find my cover letter detailing the request, introduction letter from the university, CV, and certificates. Your positive response will be highly appreciated.
+                My name is Dan Newton Gatobu, a BSc software engineering student in my final year at Muranga University of Science and Technology. I am writing to request an internship placement in your company. Attached, please find my cover letter detailing the request,and my resume. Your positive response will be highly appreciated.
                 Regards,
                 Dan Newton Gatobu''')
         else:
             message = textwrap.dedent('''\
                 Good afternoon,
-                My name is Dan Newton Gatobu, a BSc software engineering student in my final year at Muranga University of Science and Technology. I am writing to request an internship placement in your company. Attached, please find my cover letter detailing the request, introduction letter from the university, CV, and certificates. Your positive response will be highly appreciated.
+                My name is Dan Newton Gatobu, a BSc software engineering student in my final year at Muranga University of Science and Technology. I am writing to request an internship placement in your company. Attached, please find my cover letter detailing the request,and my resume. Your positive response will be highly appreciated.
                 Regards,
                 Dan Newton Gatobu''')
 
@@ -393,7 +394,7 @@ def send_application(request):
         from_email='rdan99848@gmail.com'
         recipient_list = [companyemail] 
         
-        coverletterid,coverletterlink=create_cover_letter(companyname)
+        coverletterid,coverletterlink=create_cover_letter(companyname,title2)
         resumeid,resumelink=create_a_resume(jobtitle)
         mergedfilelinks=mergepdff(coverletterlink,resumelink,jobtitle)
         # mergedfilelinks=get_mergelink(mergedfileid)
@@ -417,13 +418,13 @@ def resend(request):
         if current_time < datetim.time(12, 0, 0):
            message = textwrap.dedent('''\
                 Good morning,
-                My name is Dan Newton Gatobu, a BSc software engineering student in my final year at Muranga University of Science and Technology. I am writing to request an internship placement in your company. Attached, please find my cover letter detailing the request, introduction letter from the university, CV, and certificates. Your positive response will be highly appreciated.
+                My name is Dan Newton Gatobu, a BSc software engineering student in my final year at Muranga University of Science and Technology. I am writing to request an internship placement in your company. Attached, please find my cover letter detailing the request and my resume. Your positive response will be highly appreciated.
                 Regards,
                 Dan Newton Gatobu''')
         else:
             message = textwrap.dedent('''\
                 Good afternoon,
-                My name is Dan Newton Gatobu, a BSc software engineering student in my final year at Muranga University of Science and Technology. I am writing to request an internship placement in your company. Attached, please find my cover letter detailing the request, introduction letter from the university, CV, and certificates. Your positive response will be highly appreciated.
+                My name is Dan Newton Gatobu, a BSc software engineering student in my final year at Muranga University of Science and Technology. I am writing to request an internship placement in your company. Attached, please find my cover letter detailing the request, and my resume. Your positive response will be highly appreciated.
                 Regards,
                 Dan Newton Gatobu''')
         email = EmailMessage(sent_app.subject, message, sent_app.company_email, [sent_app.company_email])
