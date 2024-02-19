@@ -19,12 +19,12 @@
                     <p>Select templates:</p>
                     <div class="template-list">
                         <!-- Display CVs -->
-                        <h2>CVs</h2>
+                        <h2>Resume</h2>
                         <ul>
-                            {% for cv_item in cv_list %}
+                            {% for cv_item in resume_lt %}
                             <li>
                                 <label class="template-label">
-                                    <input type="checkbox" name="selected_cv_id" value="{{ cv_item.id }}">
+                                    <input type="checkbox" name="selected_resume_id" value="{{ cv_item.id }}">
                                     {{ cv_item.name }}
                                     <!-- Display other CV details as needed -->
                                 </label>
@@ -35,7 +35,7 @@
                         <!-- Display Cover Letters -->
                         <h2>Cover Letters</h2>
                         <ul>
-                            {% for coverletter_item in coverletter_list %}
+                            {% for coverletter_item in cover_lt %}
                             <li>
                                 <label class="template-label">
                                     <input type="checkbox" name="selected_coverletter_id" value="{{ coverletter_item.id }}">
@@ -46,19 +46,6 @@
                             {% endfor %}
                         </ul>
 
-                        <!-- Display Resumes -->
-                        <h2>Resumes</h2>
-                        <ul>
-                            {% for resume_item in resume_list %}
-                            <li>
-                                <label class="template-label">
-                                    <input type="checkbox" name="selected_resume_id" value="{{ resume_item.id }}">
-                                    {{ resume_item.name }}
-                                    <!-- Display other resume details as needed -->
-                                </label>
-                            </li>
-                            {% endfor %}
-                        </ul>
                     </div>
                 </div>
             </div>
@@ -66,22 +53,29 @@
             <div class="col-md-6">
                 <div class="box">
                     <h3 class="heading">Enter details</h3>
-                    <form class="mb-5" action="{% url 'mergedoc' %}" method="post" id="contactForm" name="contactForm">
+                    <form class="mb-5" action="{% url 'resend_info' %}" method="post" id="contactForm" name="contactForm">
                         {% csrf_token %}
                         <!-- Hidden fields to store the selected template IDs -->
                         <input type="hidden" name="selected_cv_id" id="selected_cv_id" value="">
                         <input type="hidden" name="selected_coverletter_id" id="selected_coverletter_id" value="">
                         <input type="hidden" name="selected_resume_id" id="selected_resume_id" value="">
-                        
-                        <div class="row">
-                            <div class="col-md-12 form-group">
-                                <label for="name" class="col-form-label">Merged name</label>
-                                <input type="text" class="form-control" name="title" id="name" placeholder="Merged document name">
+                        <div class="col">
+                            <div class="form-outline">
+                            <input type="text" id="form3Example1" name="title" class="form-control" />
+                            <label class="form-label" for="form3Example1">Job title</label>
                             </div>
                         </div>
+                        <div class="col">
+                            <div class="form-outline">
+                            <input type="text" id="form3Example1" name="title2" class="form-control" />
+                            <label class="form-label" for="form3Example1">Cover letter job title</label>
+                            </div>
+                        </div>
+                        
+                        
                         <div class="row">
                             <div class="col-md-12">
-                                <input type="submit" value="Merge documents" class="btn btn-block btn-primary rounded-0 py-2 px-4">
+                                <input type="submit" value="Resend" class="btn btn-block btn-primary rounded-0 py-2 px-4">
                             </div>
                         </div>
                     </form>
@@ -94,30 +88,31 @@
 <script>
     // JavaScript to update the hidden input fields with the selected template IDs
     document.addEventListener("DOMContentLoaded", function () {
-        const cvInput = document.querySelector("input[name='selected_cv_id']");
         const coverletterInput = document.querySelector("input[name='selected_coverletter_id']");
         const resumeInput = document.querySelector("input[name='selected_resume_id']");
         
-        const cvIdInput = document.getElementById("selected_cv_id");
         const coverletterIdInput = document.getElementById("selected_coverletter_id");
         const resumeIdInput = document.getElementById("selected_resume_id");
 
-        cvInput.addEventListener("change", function () {
-            cvIdInput.value = cvInput.checked ? cvInput.value : '';
-        });
-
         coverletterInput.addEventListener("change", function () {
-            coverletterIdInput.value = coverletterInput.checked ? coverletterInput.value : '';
+            if (coverletterInput.checked) {
+                coverletterIdInput.value = coverletterInput.value;
+            } else {
+                coverletterIdInput.value = "";
+            }
         });
 
         resumeInput.addEventListener("change", function () {
-            resumeIdInput.value = resumeInput.checked ? resumeInput.value : '';
+            if (resumeInput.checked) {
+                resumeIdInput.value = resumeInput.value;
+            } else {
+                resumeIdInput.value = "";
+            }
         });
-
-        console.log(cvInput);
-        console.log(coverletterInput);
-        console.log(resumeInput);
     });
 </script>
 
+
 {% endblock %}
+
+

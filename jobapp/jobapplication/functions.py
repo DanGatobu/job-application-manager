@@ -14,10 +14,10 @@ from io import BytesIO
 
 
 
-def create_cover_letter(companyname,title2):
+def create_cover_letter(companyname,title2,letter_id):
     pythoncom.CoInitialize()
     company=companyname
-    templateid=1
+    templateid=letter_id
     resumetemplate = coverletter.objects.get(id=int(templateid))
     file_url = resumetemplate.letter_template.url
     print(file_url)
@@ -48,9 +48,11 @@ def create_cover_letter(companyname,title2):
         if cc.Title=='date':
             cc.Range.Text=fdate
         if cc.Title=='title2':
-            cc.Range.Text=title2
+            cc.Range.Text=title2.upper()
         if cc.Title=='company2':
             cc.Range.Text=company
+        if cc.Title=='title3':
+            cc.Range.Text=title2
         
         # Save the Word document as a PDF in the cpdf directory
     doc.SaveAs(pdf_path, FileFormat=17)  # FileFormat 17 is for PDF
@@ -63,10 +65,10 @@ def create_cover_letter(companyname,title2):
     new_cover.save()
     return  new_cover.pk,pdf_path
 
-def create_a_resume(title):
+def create_a_resume(title,resume_id):
     title=title
     pythoncom.CoInitialize()
-    templateid=1
+    templateid=resume_id
     resumetemplate = resumetemplates.objects.get(id=int(templateid))
     file_url = resumetemplate.doc_template.url
 

@@ -69,3 +69,21 @@ class sent_application(models.Model):
     mergedoc=models.CharField(max_length=300)
     date=models.DateTimeField(auto_now_add=True)
     
+    #make sure to add the __str__ method to the model 
+    
+    def __str__(self):
+        return self.company_name
+    
+
+class resend_resumes(models.Model):
+    name=models.CharField(max_length=100)
+    document=models.FileField(upload_to='resend_resumes/',max_length=600)
+    def __str__(self):
+        return self.name
+    
+class resend_coverletters(models.Model):
+    name=models.CharField(max_length=100)
+    document=models.FileField(upload_to='resend_coverletters/',max_length=600)
+    def __str__(self):
+        return self.name
+    

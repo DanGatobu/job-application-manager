@@ -1,10 +1,11 @@
+# uses pyhon 3.8 
 asgiref==3.7.2
-backports.zoneinfo==0.2.1
+# backports.zoneinfo==0.2.1
 colorama==0.4.6
 Django==4.2.4
 docx2pdf==0.1.8
 lxml==4.9.3
-Pillow==7.2.0
+# Pillow==7.2.0
 psycopg2==2.9.7
 PyPDF2==3.0.1
 python-docx==0.8.11
@@ -13,3 +14,4 @@ sqlparse==0.4.4
 tqdm==4.66.1
 typing_extensions==4.7.1
 tzdata==2023.3
+python-decouple

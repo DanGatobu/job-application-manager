@@ -31,6 +31,8 @@ urlpatterns=[
     path('sendapp',views.send_application,name='sendapp'),
     path('managesent',views.manage_sentapplications,name='managesent'),
     path('resend',views.resend,name='resend'),
+    path('resend_info',views.resend_info,name='resend_info'),
+    path('test',views.send_rebuild,name='test')
     
     
     

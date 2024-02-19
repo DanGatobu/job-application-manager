@@ -3,6 +3,7 @@ from .models import resumetemplates,coverletter,cv,mergeddocs,email,created_resu
 import win32com.client
 import pythoncom
 from django.conf import settings
+from django.contrib import messages
 import os
 from docx2pdf import convert 
 from io import BytesIO
@@ -50,8 +51,9 @@ def addtemplate(request):
         document = request.FILES.get('doc')
         if document and image:
             resumetemplates.objects.create(name=name,description=description,image=image,doc_template=document)
+            return redirect('mresume_templates')
         else:
-            print("provide image/document")
+            messages.error(request, 'provide image/document')
     return render(request,'addtemplate.html')
 
 def add_cv(request):
@@ -62,8 +64,9 @@ def add_cv(request):
         document = request.FILES.get('doc')
         if document and image:
             cv.objects.create(name=name,description=description,image=image,cv_file=document)
+            return redirect('mcv')
         else:
-            print("provide image/document")
+            messages.error(request, 'provide image/document')
     return render(request,'addcv.html')
 
 def add_coverletter(request):
@@ -74,8 +77,9 @@ def add_coverletter(request):
         document = request.FILES.get('doc')
         if document and image:
             coverletter.objects.create(name=name,description=description,image=image,letter_template=document)
+            return redirect('mcover_template')
         else:
-            print("provide image/document")
+            messages.error(request, 'provide image/document')
     
     return render(request,'addcoverletter.html')
 
@@ -88,7 +92,7 @@ def add_email(request):
         if document and image:
             email.objects.create(name=name,description=description,image=image,doc_template=document)
         else:
-            print("provide image/document")
+            messages.error(request, 'provide image/document')
     return render(request,'addemail.html')
 
 def merge_doc(request):
@@ -311,7 +315,7 @@ def delete_resumet(request,tempid):
     if template:
         template.delete
     else:
-        print('no')
+        messages.error(request, 'Template not deleted')
     return redirect('mresume_templates')
 
 def delete_resumes(request,tempid):
@@ -321,7 +325,7 @@ def delete_resumes(request,tempid):
         template.delete
         # print('yes')
     else:
-        print('no')
+        messages.error(request, 'Template not deleted')
     return redirect('mresume')
 
 def mcv(request):
@@ -336,7 +340,7 @@ def dcv(request,tempid):
         template.delete
         # print('yes')
     else:
-        print('no')
+        messages.error(request, 'Template not deleted')
     return redirect('mcv')
     
 def mcover_letters(request):
@@ -349,9 +353,10 @@ def dcover_letters(request,tempid):
     template=created_coverletters.objects.get(id=int(id))
     if template:
         template.delete
+        messages.success(request, 'Template deleted')
         # print('yes')
     else:
-        print('no')
+        messages.error(request, 'Template not deleted')
     return redirect('mcover_letters')
 
 def mcover_template(request):
@@ -364,23 +369,46 @@ def dcover_template(request,tempid):
     template=coverletter.objects.get(id=int(id))
     if template:
         template.delete
+        messages.success(request, 'Template deleted')
         # print('yes')
     else:
-        print('no')
+        messages.error(request, 'Template not deleted')
     return redirect('mcover_template')
     
 def send_application(request):
+    cover_lt=coverletter.objects.all()
+    resume_lt=resumetemplates.objects.all()
+    content={'cover_lt':cover_lt,'resume_lt':resume_lt}
     if request.method=='POST':
+        # get coverletter templates and resume templates
         companyname=request.POST['company_name']
         jobtitle=request.POST['title']
         companyemail=request.POST['company_email']
         title2=request.POST['title2']
+        selected_coverletter_id = request.POST.get('selected_coverletter_id',None)
+        selected_resume_id = request.POST.get('selected_resume_id',None)
+        print(selected_coverletter_id)
+        print(selected_resume_id)
+        
         current_time = datetim.datetime.now().time()
-
+        
+        if selected_coverletter_id=='' or selected_coverletter_id==None:
+            selected_coverletter_id=1
+        if selected_resume_id==None or selected_resume_id=='':
+            selected_resume_id=1
+        
+        
+        
+        s,coverletterlink=create_cover_letter(companyname,title2,int(selected_coverletter_id))
+        j,resumelink=create_a_resume(jobtitle,int(selected_resume_id))
+        
+        current_time = datetim.datetime.now().time()
+        
+        
         if current_time < datetim.time(12, 0, 0):
            message = textwrap.dedent('''\
                 Good morning,
-                My name is Dan Newton Gatobu, a BSc software engineering student in my final year at Muranga University of Science and Technology. I am writing to request an internship placement in your company. Attached, please find my cover letter detailing the request,and my resume. Your positive response will be highly appreciated.
+                My name is Dan Newton Gatobu, a BSc software engineering student in my final year at Muranga University of Science and Technology. I am writing to request an internship placement in your company. Attached, please find my cover letter detailing the request and my Resume. Your positive response will be highly appreciated.
                 Regards,
                 Dan Newton Gatobu''')
         else:
@@ -389,15 +417,10 @@ def send_application(request):
                 My name is Dan Newton Gatobu, a BSc software engineering student in my final year at Muranga University of Science and Technology. I am writing to request an internship placement in your company. Attached, please find my cover letter detailing the request,and my resume. Your positive response will be highly appreciated.
                 Regards,
                 Dan Newton Gatobu''')
-
         subject=request.POST['subject']
         from_email='rdan99848@gmail.com'
-        recipient_list = [companyemail] 
-        
-        coverletterid,coverletterlink=create_cover_letter(companyname,title2)
-        resumeid,resumelink=create_a_resume(jobtitle)
-        mergedfilelinks=mergepdff(coverletterlink,resumelink,jobtitle)
-        # mergedfilelinks=get_mergelink(mergedfileid)
+        recipient_list = [companyemail]
+        mergedfilelinks=mergepdff(coverletterlink,resumelink,jobtitle) 
         
         email = EmailMessage(subject, message, from_email, recipient_list)
         email.attach_file(coverletterlink)
@@ -406,31 +429,157 @@ def send_application(request):
         email.send()
         sent_application.objects.create(company_name=companyname,company_email=companyemail,coverletter=coverletterlink,resume=resumelink,mergedoc=mergedfilelinks,subject=subject)
         
+        # remain on page but provide message on top saying sucessfully sent
         
-    return render(request,'sendapp.html')
+        sucess_message='Email sent successfully'
+        fail_message='Email not sent'
+        
+        
+        
+    return render(request,'sendapp.html',content)
 
 def resend(request):
     if request.method=='POST':
         id=request.POST['id']
-        current_time = datetim.datetime.now().time()
-        sent_app = get_object_or_404(sent_application, pk=id)
+        #save the id in a session
+        request.session['resend_id']=id
+        
+        return redirect('resend_info')
 
+    return redirect('managesent')
+
+def resend_info(request):
+    id=request.session['resend_id']
+    
+    
+    cover_lt=coverletter.objects.all()
+    
+    resume_lt=resumetemplates.objects.all()
+    content={'cover_lt':cover_lt,'resume_lt':resume_lt}
+    # get obeject with id 3 from sent_application
+    # f=sent_application.objects.all()
+
+    sent_app = get_object_or_404(sent_application, pk=id)
+    #get company name,email,subject
+    company_name=sent_app.company_name
+    company_email=sent_app.company_email
+    subject=sent_app.subject
+    
+    if request.method=='POST':
+        # get coverletter templates and resume templates
+        
+        jobtitle=request.POST['title']
+        title2=request.POST['title2']
+       
+        selected_coverletter_id = request.POST.get('selected_coverletter_id',None)
+        if selected_coverletter_id=='' or selected_coverletter_id==None:
+            selected_coverletter_id=2
+        selected_resume_id = request.POST.get('selected_resume_id',None)
+        if selected_resume_id=='' or selected_resume_id==None:
+            selected_resume_id=2
+        
+        current_time = datetim.datetime.now().time()
+        # print('hhhhh')
+        
+        
         if current_time < datetim.time(12, 0, 0):
            message = textwrap.dedent('''\
                 Good morning,
-                My name is Dan Newton Gatobu, a BSc software engineering student in my final year at Muranga University of Science and Technology. I am writing to request an internship placement in your company. Attached, please find my cover letter detailing the request and my resume. Your positive response will be highly appreciated.
+                My name is Dan Newton Gatobu, a BSc software engineering student in my final year at Muranga University of Science and Technology. I am writing to request an internship placement in your company. Attached, please find my cover letter detailing the request and my Resume. Your positive response will be highly appreciated.
                 Regards,
                 Dan Newton Gatobu''')
         else:
             message = textwrap.dedent('''\
                 Good afternoon,
-                My name is Dan Newton Gatobu, a BSc software engineering student in my final year at Muranga University of Science and Technology. I am writing to request an internship placement in your company. Attached, please find my cover letter detailing the request, and my resume. Your positive response will be highly appreciated.
+                My name is Dan Newton Gatobu, a BSc software engineering student in my final year at Muranga University of Science and Technology. I am writing to request an internship placement in your company. Attached, please find my cover letter detailing the request,and my resume. Your positive response will be highly appreciated.
                 Regards,
                 Dan Newton Gatobu''')
-        email = EmailMessage(sent_app.subject, message, sent_app.company_email, [sent_app.company_email])
-        email.attach_file(sent_app.coverletter)
-        email.attach_file(sent_app.resume)
-        email.attach_file(sent_app.mergedoc)
+            
+        # print('hhhhh')
+        if selected_coverletter_id=='' or selected_coverletter_id==None:
+            mes='Please select a cover letter'
+            print(selected_coverletter_id)
+            return redirect('resend_info')
+        if selected_resume_id==None or selected_resume_id=='':
+            mes='Please select a resume'
+            print(selected_resume_id)
+            return redirect('resend_info')
+        
+        print('hhhhh')
+        
+        s,coverletterlink=create_cover_letter(company_name,title2,int(selected_coverletter_id))
+        j,resumelink=create_a_resume(jobtitle,int(selected_resume_id))
+        # print('hhhhh')
+        
+        from_email='rdan99848@gmail.com'
+        recipient_list = [company_email]
+        mergedfilelinks=mergepdff(coverletterlink,resumelink,jobtitle) 
+        
+        email = EmailMessage(subject, message, from_email, recipient_list)
+        email.attach_file(coverletterlink)
+        email.attach_file(resumelink)
+        email.attach_file(mergedfilelinks)
         email.send()
+        
+    # delete the resend session
+        del request.session['resend_id']
+        return redirect('managesent')
+    
+    
+    return render(request,'resend_info.html',content)
 
-    return redirect('managesent')
+
+def send_rebuild(request):
+    id=request.session['resend_id']
+    print(id)
+    cover_lt=coverletter.objects.all()
+    resume_lt=resumetemplates.objects.all()
+    content={'cover_lt':cover_lt,'resume_lt':resume_lt}
+    # get obeject with id 3 from sent_application
+    # f=sent_application.objects.all()
+
+    sent_app = get_object_or_404(sent_application, pk=id)
+    # print('jjj')
+    #get company name,email,subject
+    company_name=sent_app.company_name
+    company_email=sent_app.company_email
+    subject=sent_app.subject
+    print(company_email)
+    
+    if request.method=='POST':
+        # get coverletter templates and resume templates
+        jobtitle=request.POST['title']
+        title2=request.POST['title2']
+        selected_coverletter_id = request.POST.get('selected_coverletter_id',None)
+        selected_resume_id = request.POST.get('selected_resume_id',None)
+        
+        
+        message=0
+        if selected_coverletter_id=='' or selected_coverletter_id==None:
+            message='Please select a cover letter'
+            messages.error(request, message)
+            return render(request,'test.html')
+        if selected_resume_id==None or selected_resume_id=='':
+            message='Please select a resume'
+            messages.error(request, message)
+            return render(request,'test.html')
+        
+        
+        
+        s,coverletterlink=create_cover_letter(company_name,title2,int(selected_coverletter_id))
+        j,resumelink=create_a_resume(jobtitle,int(selected_resume_id))
+        
+        from_email='rdan99848@gmail.com'
+        recipient_list = [company_email]
+        mergedfilelinks=mergepdff(coverletterlink,resumelink,jobtitle) 
+        
+        email = EmailMessage(subject, message, from_email, recipient_list)
+        email.attach_file(coverletterlink)
+        email.attach_file(resumelink)
+        email.attach_file(mergedfilelinks)
+        email.send()
+    
+    
+       
+
+    return render(request,'test.html',content)
